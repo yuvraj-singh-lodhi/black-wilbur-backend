@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser, Group, Permission
 
 # 1. Category Model
 class Category(models.Model):
@@ -10,13 +11,15 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-# 2. Updated Product Model with Category Relationship
+# 2. Updated Product Model with Category Relationship and additional fields
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
+    availability = models.BooleanField(default=True)  # Added availability field
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
+    size = models.CharField(max_length=10)  # Size field for S to XXL
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -32,12 +35,9 @@ class ProductImage(models.Model):
     def __str__(self):
         return f"Image for {self.product.name}"
 
-# 2. Users and Authentication
-from django.contrib.auth.models import AbstractUser, Group, Permission
-
+# 4. Users and Authentication
 class User(AbstractUser):
-    # Add your custom fields here
-
+    # Add your custom fields here if needed
     groups = models.ManyToManyField(
         Group,
         related_name='custom_user_set',  # Change this to something unique
@@ -49,7 +49,7 @@ class User(AbstractUser):
         blank=True,
     )
 
-# 3. Orders and Payment
+# 5. Orders and Payment
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -61,7 +61,7 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
 
-# 4. Shopping Cart and Wishlist
+# 6. Shopping Cart and Wishlist
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, through='CartItem')
@@ -70,12 +70,13 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='cart_items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+    size = models.CharField(max_length=10)  # Added size field
 
 class Wishlist(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product)
 
-# 5. Reviews and Ratings
+# 7. Reviews and Ratings
 class Review(models.Model):
     product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -83,7 +84,7 @@ class Review(models.Model):
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-# 6. Inventory and Shipping
+# 8. Inventory and Shipping
 class ShippingAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address_line_1 = models.CharField(max_length=255)
@@ -93,56 +94,56 @@ class ShippingAddress(models.Model):
     zip_code = models.CharField(max_length=20)
     country = models.CharField(max_length=100)
 
-# 7. Admin and Analytics
+# 9. Admin and Analytics
 class AdminActivity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     action = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-# 8. Media (Carousel Images, Videos, Banners)
+# 10. Media (Carousel Images, Videos, Banners)
 class Media(models.Model):
     image = models.ImageField(upload_to='media_images/')
     video_url = models.URLField(blank=True)
     banner_text = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-# 9. Newsletter Subscriptions
+# 11. Newsletter Subscriptions
 class NewsletterSubscription(models.Model):
     email = models.EmailField(unique=True)
     subscribed_at = models.DateTimeField(auto_now_add=True)
 
-# 10. Discounts and Promotions
+# 12. Discounts and Promotions
 class Discount(models.Model):
     code = models.CharField(max_length=50, unique=True)
     percentage = models.DecimalField(max_digits=5, decimal_places=2)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
 
-# 11. Loyalty Program
+# 13. Loyalty Program
 class LoyaltyPoint(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     points = models.PositiveIntegerField(default=0)
 
-# 12. Referral Program
+# 14. Referral Program
 class Referral(models.Model):
     referrer = models.ForeignKey(User, related_name='referrals', on_delete=models.CASCADE)
     referred = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
-# 13. Distribution Partnerships
+# 15. Distribution Partnerships
 class DistributionPartnership(models.Model):
     name = models.CharField(max_length=255)
     contact_info = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-# 14. Influencer Collaboration Feature (Contact Us Form for Influencers)
+# 16. Influencer Collaboration Feature (Contact Us Form for Influencers)
 class Influencer(models.Model):
     name = models.CharField(max_length=255)
     email = models.EmailField()
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-# 15. Customer Support System
+# 17. Customer Support System
 class SupportTicket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.CharField(max_length=255)
