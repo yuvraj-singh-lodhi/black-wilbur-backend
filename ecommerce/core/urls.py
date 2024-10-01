@@ -7,6 +7,10 @@ from .views import (CategoryViewSet, ProductViewSet, ProductImageViewSet, UserVi
                     NewsletterSubscriptionViewSet, DiscountViewSet, LoyaltyPointViewSet, 
                     ReferralViewSet, DistributionPartnershipViewSet, InfluencerViewSet, 
                     SupportTicketViewSet)
+from django.urls import path
+from .views import RegisterView, LoginView
+from rest_framework_simplejwt.views import TokenRefreshView
+
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet)
@@ -31,4 +35,9 @@ router.register(r'support-tickets', SupportTicketViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+]
+urlpatterns += [
+    path('auth/register/', RegisterView.as_view(), name='register'),
+    path('auth/login/', LoginView.as_view(), name='login'),
+    path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

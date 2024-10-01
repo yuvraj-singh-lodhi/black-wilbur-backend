@@ -38,6 +38,7 @@ class ProductImage(models.Model):
 # 4. Users and Authentication
 class User(AbstractUser):
     # Add your custom fields here if needed
+    email = models.EmailField(unique=True)
     groups = models.ManyToManyField(
         Group,
         related_name='custom_user_set',  # Change this to something unique

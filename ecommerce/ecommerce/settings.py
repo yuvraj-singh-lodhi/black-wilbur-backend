@@ -37,10 +37,27 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt',
     'rest_framework',  # Add this if you're using Django REST Framework
     'corsheaders',     # Add this if you're using CORS
     'core',           # Add your app here
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+AUTH_USER_MODEL = 'core.User'  # Replace 'core' with your app name if it's different
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
