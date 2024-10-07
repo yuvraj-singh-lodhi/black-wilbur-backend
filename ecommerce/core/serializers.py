@@ -1,6 +1,6 @@
 # serializers.py
 from rest_framework import serializers
-from .models import Category, Product, ProductImage, User, Order, OrderItem, Cart, CartItem, Wishlist, Review, ShippingAddress, Media, NewsletterSubscription, Discount, LoyaltyPoint, Referral, DistributionPartnership, Influencer, SupportTicket
+from .models import Category, Product, ProductImage, ProductSize, User, Order, OrderItem, Cart, CartItem, Wishlist, Review, ShippingAddress, Media, NewsletterSubscription, Discount, LoyaltyPoint, Referral, DistributionPartnership, Influencer, SupportTicket
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
@@ -40,15 +40,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    identifier = serializers.CharField()  # This now accepts either username or email
+    identifier = serializers.CharField()  # Accepts either username or email
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
         User = get_user_model()  # Use the custom user model
         identifier = data['identifier']
+        user = None
 
+        # Try to get the user by username or email
         try:
-            # Try to get the user by username or email
             user = User.objects.get(username=identifier)  # Check by username
         except User.DoesNotExist:
             try:
@@ -58,10 +59,11 @@ class LoginSerializer(serializers.Serializer):
 
         # Authenticate user
         if user.check_password(data['password']):
-            return user
-        
+            # Return user object in validated_data
+            data['user'] = user
+            return data  # Return the validated data, including the user
+
         raise serializers.ValidationError("Invalid credentials.")
-    
     
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -77,6 +79,12 @@ class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
         fields = '__all__'
+
+class ProductSizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductSize
+        fields = '__all__'
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

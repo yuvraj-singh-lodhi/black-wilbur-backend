@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
     'rest_framework',  # Add this if you're using Django REST Framework
-    'corsheaders',     # Add this if you're using CORS
+    'corsheaders',
     'core',           # Add your app here
 ]
 
@@ -71,8 +71,10 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 ]
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # React app URL
+    "http://localhost:5173",  
 ]
+CORS_ALLOW_ALL_ORIGINS = True
+
 ROOT_URLCONF = 'ecommerce.urls'
 
 TEMPLATES = [

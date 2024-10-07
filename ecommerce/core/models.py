@@ -11,7 +11,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
-# 2. Updated Product Model with Category Relationship and additional fields
+# 2. Updated Product Model with Category Relationship and without the size field
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -19,12 +19,27 @@ class Product(models.Model):
     stock = models.PositiveIntegerField()
     availability = models.BooleanField(default=True)  # Added availability field
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
-    size = models.CharField(max_length=10)  # Size field for S to XXL
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+
+# New Model: ProductSize to manage sizes and quantities
+class ProductSize(models.Model):
+    SIZE_CHOICES = [
+        ('S', 'Small'),
+        ('M', 'Medium'),
+        ('L', 'Large'),
+        ('XL', 'Extra Large'),
+        ('XXL', 'Double Extra Large'),
+    ]
+    product = models.ForeignKey(Product, related_name='sizes', on_delete=models.CASCADE)
+    size = models.CharField(max_length=5, choices=SIZE_CHOICES)  # Define size choices
+    quantity = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.product.name} - {self.size}"
 
 # 3. New ProductImage Model for Multiple Images
 class ProductImage(models.Model):
@@ -37,7 +52,6 @@ class ProductImage(models.Model):
 
 # 4. Users and Authentication
 class User(AbstractUser):
-    # Add your custom fields here if needed
     email = models.EmailField(unique=True)
     groups = models.ManyToManyField(
         Group,
@@ -60,6 +74,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    size = models.CharField(max_length=5)  # Added size for order items
     quantity = models.PositiveIntegerField()
 
 # 6. Shopping Cart and Wishlist
@@ -70,8 +85,8 @@ class Cart(models.Model):
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='cart_items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    size = models.CharField(max_length=5)  # Added size field to cart items
     quantity = models.PositiveIntegerField()
-    size = models.CharField(max_length=10)  # Added size field
 
 class Wishlist(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
